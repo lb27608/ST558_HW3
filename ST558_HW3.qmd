@@ -1,0 +1,101 @@
+---
+title: "ST 558 Homework 3"
+author: "Lee Bennett"
+format: html
+editor: visual
+---
+
+## Task 1: Control Flow Practice
+
+To get started, we'll add a new column called `status` to each data frame in `bp_list`:
+
+```{r}
+load("hw2_list.rda")
+
+bp_list$treatment$status <- character(20)
+bp_list$placebo$status <- character(10)
+
+```
+
+Next, we'll classify each post-treatment blood pressure measurement as
+
+-   Normal (≤120 mm Hg)
+
+-   Borderline (\>120 and ≤ 140 mm Hg)
+
+-   High (≥140 mmHg)
+
+using a `for` loop and `if/then/else` logic:
+
+```{r}
+for (i in 1:20) 
+{
+if (bp_list$treatment$post_bp[i] <= 120) bp_list$treatment$status[i] <- "Normal"
+else if (bp_list$treatment$post_bp[i]>120 &  bp_list$treatment$post_bp[i]<=140) bp_list$treatment$status[i] <- "Borderline"
+else bp_list$treatment$status[i] <- "High"
+}
+head(bp_list$treatment)
+```
+
+A similar `for` loop does the same classification for the placebo group:
+
+```{r}
+for (i in 1:10) 
+{
+if (bp_list$placebo$post_bp[i] <= 120) bp_list$placebo$status[i] <- "Normal"
+else if (bp_list$placebo$post_bp[i]>120 &  bp_list$placebo$post_bp[i]<=140) bp_list$placebo$status[i] <- "Borderline"
+else bp_list$placebo$status[i] <- "High"
+}
+head(bp_list$placebo)
+```
+
+## Task 2: Function Writing
+
+For this task, we create a function that takes a list containing 2 data frames (`treatment` and `placebo`) and a summary function (with a default value of `mean`) as arguments:
+
+```{r}
+df_stat <- function(df_list,stat="mean") {
+  my_fun <- get(stat)
+  trt_sum<-c(my_fun(df_list$treatment$pre_bp),my_fun(df_list$treatment$post_bp),my_fun(df_list$treatment$diff_bp))
+  placebo_sum<-c(my_fun(df_list$placebo$pre_bp),my_fun(df_list$placebo$post_bp),my_fun(df_list$placebo$diff_bp))
+  final_sum<-c(trt_sum,placebo_sum)
+  
+  vec_names<-c("Pre-treatment","Post-treatment","Treatment difference","Pre-placebo","Post-placebo","Placebo difference")
+  result_names<-paste(vec_names,stat)
+  
+  names(final_sum)<-result_names
+  return(final_sum)
+}
+```
+
+We can now apply this function to the `bp_list` object to obtain a variety of summary statistics for the blood pressure data:
+
+1.  Mean:
+
+```{r}
+df_stat(bp_list)
+```
+
+2.  Variance:
+
+```{r}
+df_stat(bp_list,stat="var")
+```
+
+3.  Standard deviation:
+
+```{r}
+df_stat(bp_list,stat="sd")
+```
+
+4.  Minimum:
+
+```{r}
+df_stat(bp_list,stat="min")
+```
+
+5.  Maximum:
+
+```{r}
+df_stat(bp_list,stat="max")
+```
